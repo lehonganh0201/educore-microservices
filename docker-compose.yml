@@ -1,0 +1,47 @@
+name: educore
+
+services:
+  config-server:
+    container_name: educore-config-server
+
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+
+    ports:
+      - "8888:8888"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SERVER_PORT: 8888
+
+      # Đọc file config từ thư mục được mount
+      CONFIG_SEARCH_LOCATIONS: file:/configurations
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    volumes:
+      - ./config-server/src/main/resources/configurations:/configurations:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8888/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+networks:
+  educore-network:
+    name: educore-network
+    driver: bridge
