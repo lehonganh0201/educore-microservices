@@ -41,6 +41,31 @@ services:
     networks:
       - educore-network
 
+  discovery-service:
+    build:
+      context: ./discovery-service
+
+    container_name: educore-discovery-service
+
+    ports:
+      - "8761:8761"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      SERVER_PORT: 8761
+
+      # Ghi đè localhost bằng service name trong Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_HOSTNAME: discovery-service
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+    networks:
+      - educore-network
+
 networks:
   educore-network:
     name: educore-network
