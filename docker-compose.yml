@@ -5,7 +5,7 @@ services:
     container_name: educore-config-server
 
     build:
-      context: ./config-server
+      context: ./infrastructure/config-server
       dockerfile: Dockerfile
 
     ports:
@@ -23,7 +23,7 @@ services:
         -XX:+ExitOnOutOfMemoryError
 
     volumes:
-      - ./config-server/src/main/resources/configurations:/configurations:ro
+      - ./infrastructure/config-server/src/main/resources/configurations:/configurations:ro
 
     healthcheck:
       test:
@@ -43,7 +43,8 @@ services:
 
   discovery-service:
     build:
-      context: ./discovery-service
+      context: ./infrastructure/discovery-service
+      dockerfile: Dockerfile
 
     container_name: educore-discovery-service
 
@@ -83,7 +84,7 @@ services:
     container_name: educore-api-gateway
 
     build:
-      context: ./api-gateway
+      context: ./infrastructure/api-gateway
       dockerfile: Dockerfile
 
     ports:
