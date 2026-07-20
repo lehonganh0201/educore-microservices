@@ -55,6 +55,28 @@ public class KeycloakIdentityTokenAdapter implements IdentityTokenProvider {
         }
     }
 
+    @Override
+    public AuthenticationTokenResult refresh(
+            String refreshToken
+    ) {
+        MultiValueMap<String, String> form =
+                createClientForm();
+
+        form.add("grant_type", "refresh_token");
+        form.add("refresh_token", refreshToken);
+
+        try {
+            return requestToken(form);
+        } catch (RestClientResponseException exception) {
+            if (exception.getStatusCode()
+                    .is4xxClientError()) {
+                throw new BadRequestException("Invalid refresh token");
+            }
+
+            throw new BadRequestException("Failed to request token from Keycloak");
+        }
+    }
+
     private AuthenticationTokenResult requestToken(
             MultiValueMap<String, String> form
     ) {

@@ -17,4 +17,8 @@ public interface IdentityTokenProvider {
             String usernameOrEmail,
             String password
     );
+
+    AuthenticationTokenResult refresh(
+            String refreshToken
+    );
 }

@@ -1,6 +1,7 @@
 package com.educore.identifyservice.application.service;
 
 import com.educore.identifyservice.application.command.LoginCommand;
+import com.educore.identifyservice.application.command.RefreshTokenCommand;
 import com.educore.identifyservice.application.port.in.AuthenticationUseCase;
 import com.educore.identifyservice.application.port.out.IdentityTokenProvider;
 import com.educore.identifyservice.application.result.AuthenticationTokenResult;
@@ -28,6 +29,15 @@ public class AuthenticationApplicationService implements AuthenticationUseCase {
         return identityTokenProvider.login(
                 command.usernameOrEmail(),
                 command.password()
+        );
+    }
+
+    @Override
+    public AuthenticationTokenResult refresh (
+            RefreshTokenCommand command
+    ) {
+        return identityTokenProvider.refresh(
+                command.refreshToken()
         );
     }
 }

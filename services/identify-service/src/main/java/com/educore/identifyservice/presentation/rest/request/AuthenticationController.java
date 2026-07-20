@@ -1,10 +1,11 @@
-package com.educore.identifyservice.presentation.rest;
+package com.educore.identifyservice.presentation.rest.request;
 
 import com.educore.common.dto.ApiResponse;
 import com.educore.identifyservice.application.command.LoginCommand;
+import com.educore.identifyservice.application.command.RefreshTokenCommand;
 import com.educore.identifyservice.application.port.in.AuthenticationUseCase;
 import com.educore.identifyservice.application.result.AuthenticationTokenResult;
-import com.educore.identifyservice.presentation.rest.request.LoginRequest;
+import com.educore.identifyservice.presentation.rest.RefreshTokenRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +44,21 @@ public class AuthenticationController {
                                                 request.password()
                                         )
                                 )
+                        )
+                );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<AuthenticationTokenResult>> refresh(
+            @Valid @RequestBody RefreshTokenRequest request
+    ) {
+        return ResponseEntity
+                .ok(ApiResponse.success(
+                                "Refresh token successful",
+                                authenticationUseCase.refresh(
+                                        new RefreshTokenCommand(
+                                                request.refreshToken()
+                                        ))
                         )
                 );
     }
