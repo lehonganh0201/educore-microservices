@@ -21,6 +21,7 @@
         <module>educore-security-starter</module>
         <module>educore-logging-starter</module>
         <module>educore-web-starter</module>
+        <module>educore-data-starter</module>
     </modules>
 
 </project>
