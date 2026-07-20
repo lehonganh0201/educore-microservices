@@ -4,6 +4,12 @@ server:
 spring:
   cloud:
     gateway:
+      routes:
+        - id: identify-service
+          uri: lb://IDENTIFY-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+
       server:
         webflux:
           discovery:

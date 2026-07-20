@@ -17,6 +17,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>identify-service</module>
     </modules>
 
 </project>
