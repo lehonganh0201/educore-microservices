@@ -7,6 +7,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -34,6 +36,11 @@ public final class RestAuthenticationEntryPoint implements AuthenticationEntryPo
             "Authentication is required to access this resource";
 
     private final ObjectMapper objectMapper;
+
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    RestAuthenticationEntryPoint.class
+            );
 
     /*
      * Delegate này giúp giữ hành vi chuẩn của OAuth2 Resource Server,
@@ -82,6 +89,13 @@ public final class RestAuthenticationEntryPoint implements AuthenticationEntryPo
                         ERROR_MESSAGE,
                         ApiError.of(ERROR_CODE)
                 );
+
+        log.warn(
+                "Authentication failed path={} reason={}",
+                request.getRequestURI(),
+                authenticationException.getClass()
+                        .getSimpleName()
+        );
 
         writeJsonResponse(response, responseBody);
     }

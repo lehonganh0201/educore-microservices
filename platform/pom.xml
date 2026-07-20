@@ -20,6 +20,7 @@
         <module>common-core</module>
         <module>educore-security-starter</module>
         <module>educore-logging-starter</module>
+        <module>educore-web-starter</module>
     </modules>
 
 </project>
