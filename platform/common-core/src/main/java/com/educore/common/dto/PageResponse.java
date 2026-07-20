@@ -1,4 +1,4 @@
-package com.educore.commoncore.dto;
+package com.educore.common.dto;
 
 import java.util.List;
 

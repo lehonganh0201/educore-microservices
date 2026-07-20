@@ -1,4 +1,4 @@
-package com.educore.commoncore.dto;
+package com.educore.common.dto;
 
 import java.time.Instant;
 
@@ -21,9 +21,7 @@ public record ApiResponse<T>(
 
     public static <T> ApiResponse<T> success(
             String message,
-            T data,
-            String path,
-            String requestId
+            T data
     ) {
         return new ApiResponse<>(
                 true,
@@ -35,9 +33,7 @@ public record ApiResponse<T>(
     }
 
     public static ApiResponse<Void> success(
-            String message,
-            String path,
-            String requestId
+            String message
     ) {
         return new ApiResponse<>(
                 true,
@@ -50,9 +46,7 @@ public record ApiResponse<T>(
 
     public static ApiResponse<Void> error(
             String message,
-            ApiError error,
-            String path,
-            String requestId
+            ApiError error
     ) {
         return new ApiResponse<>(
                 false,
@@ -63,4 +57,3 @@ public record ApiResponse<T>(
         );
     }
 }
-
