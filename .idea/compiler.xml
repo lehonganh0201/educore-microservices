@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="api-gateway" />
         <module name="config-server" />
+        <module name="logging" />
         <module name="security" />
         <module name="discovery-service" />
         <module name="common-core" />
@@ -20,6 +21,7 @@
       <module name="common-core" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="discovery-service" options="-parameters" />
+      <module name="logging" options="-parameters" />
       <module name="security" options="-parameters" />
     </option>
   </component>

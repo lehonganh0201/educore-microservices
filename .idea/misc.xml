@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/infrastructure/api-gateway/pom.xml" />
         <option value="$PROJECT_DIR$/platform/common-core/pom.xml" />
         <option value="$PROJECT_DIR$/platform/educore-security-starter/pom.xml" />
+        <option value="$PROJECT_DIR$/platform/educore-logging-starter/pom.xml" />
       </list>
     </option>
   </component>

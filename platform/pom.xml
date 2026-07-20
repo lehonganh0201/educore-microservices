@@ -19,6 +19,7 @@
     <modules>
         <module>common-core</module>
         <module>educore-security-starter</module>
+        <module>educore-logging-starter</module>
     </modules>
 
 </project>
