@@ -1,0 +1,22 @@
+edu:
+  logging:
+    http:
+      enabled: true
+      access-log-enabled: true
+      request-id-header: X-Request-Id
+      max-request-id-length: 128
+      include-query-string: false
+      slow-request-threshold: 1s
+      excluded-paths:
+        - /actuator/health
+        - /actuator/health/**
+        - /actuator/prometheus
+        - /favicon.ico
+
+logging:
+  pattern:
+    level: >-
+      %5p [${spring.application.name:unknown},
+      traceId=%X{traceId:-},
+      spanId=%X{spanId:-},
+      requestId=%X{requestId:-}]
