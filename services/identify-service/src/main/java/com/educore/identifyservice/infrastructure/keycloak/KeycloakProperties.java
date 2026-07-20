@@ -23,4 +23,9 @@ public record KeycloakProperties(
         return "/realms/%s/protocol/openid-connect/token"
                 .formatted(realm);
     }
+
+    public String logoutPath() {
+        return "/realms/%s/protocol/openid-connect/logout"
+                .formatted(realm);
+    }
 }

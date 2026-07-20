@@ -1,19 +1,15 @@
-package com.educore.identifyservice.presentation.rest;
-
-import jakarta.validation.constraints.NotBlank;
+package com.educore.identifyservice.application.command;
 
 /**
  * ----------------------------------------------------------------------------
  * Author:        Hong Anh
- * Created on:    20/07/2026 at 17:22
+ * Created on:    20/07/2026 at 17:36
  * Project:       educore-microservices
  * Contact:       https://github.com/lehonganh0201
  * ----------------------------------------------------------------------------
  */
 
-public record RefreshTokenRequest(
-
-        @NotBlank
+public record LogoutCommand(
         String refreshToken
 ) {
 }

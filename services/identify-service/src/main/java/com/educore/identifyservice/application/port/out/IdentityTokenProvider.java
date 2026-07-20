@@ -21,4 +21,6 @@ public interface IdentityTokenProvider {
     AuthenticationTokenResult refresh(
             String refreshToken
     );
+
+    void logout(String refreshToken);
 }

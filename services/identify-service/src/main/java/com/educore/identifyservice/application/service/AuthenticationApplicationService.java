@@ -1,6 +1,7 @@
 package com.educore.identifyservice.application.service;
 
 import com.educore.identifyservice.application.command.LoginCommand;
+import com.educore.identifyservice.application.command.LogoutCommand;
 import com.educore.identifyservice.application.command.RefreshTokenCommand;
 import com.educore.identifyservice.application.port.in.AuthenticationUseCase;
 import com.educore.identifyservice.application.port.out.IdentityTokenProvider;
@@ -39,5 +40,10 @@ public class AuthenticationApplicationService implements AuthenticationUseCase {
         return identityTokenProvider.refresh(
                 command.refreshToken()
         );
+    }
+
+    @Override
+    public void logout(LogoutCommand command) {
+        identityTokenProvider.logout(command.refreshToken());
     }
 }

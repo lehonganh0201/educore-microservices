@@ -1,6 +1,7 @@
 package com.educore.identifyservice.application.port.in;
 
 import com.educore.identifyservice.application.command.LoginCommand;
+import com.educore.identifyservice.application.command.LogoutCommand;
 import com.educore.identifyservice.application.command.RefreshTokenCommand;
 import com.educore.identifyservice.application.result.AuthenticationTokenResult;
 
@@ -20,4 +21,6 @@ public interface AuthenticationUseCase {
     AuthenticationTokenResult refresh (
             RefreshTokenCommand command
     );
+
+    void logout(LogoutCommand command);
 }
