@@ -132,7 +132,73 @@ services:
     networks:
       - educore-network
 
+  postgres:
+    image: postgres:17-alpine
+    container_name: educore-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: lehonganh
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lehonganh}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./script/postgres/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U lehonganh -d postgres"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - educore-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: educore-keycloak
+    restart: unless-stopped
+
+    command:
+      - start-dev
+
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: lehonganh
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-lehonganh}
+
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:9090
+
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+    ports:
+      - "9090:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - educore-network
+
 networks:
   educore-network:
     name: educore-network
     driver: bridge
+
+volumes:
+  postgres_data:

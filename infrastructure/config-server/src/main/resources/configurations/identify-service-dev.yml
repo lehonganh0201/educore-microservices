@@ -1,0 +1,41 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9090/realms/educore}
+
+eureka:
+  instance:
+    prefer-ip-address: ${EUREKA_PREFER_IP_ADDRESS:false}
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+  endpoint:
+    gateway:
+      access: read-only
+
+    health:
+      show-details: ${HEALTH_SHOW_DETAILS:never}
+
+edu:
+  keycloak:
+    admin:
+      server-url: ${KEYCLOAK_ADMIN_URL:http://localhost:9090}
+      realm: ${KEYCLOAK_REALM:educore}
+      client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:identity-service}
+      client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:identity-service}}
