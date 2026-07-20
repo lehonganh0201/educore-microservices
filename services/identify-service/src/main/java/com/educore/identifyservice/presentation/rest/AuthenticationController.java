@@ -1,11 +1,14 @@
-package com.educore.identifyservice.presentation.rest.request;
+package com.educore.identifyservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
 import com.educore.identifyservice.application.command.LoginCommand;
+import com.educore.identifyservice.application.command.LogoutCommand;
 import com.educore.identifyservice.application.command.RefreshTokenCommand;
 import com.educore.identifyservice.application.port.in.AuthenticationUseCase;
 import com.educore.identifyservice.application.result.AuthenticationTokenResult;
-import com.educore.identifyservice.presentation.rest.RefreshTokenRequest;
+import com.educore.identifyservice.presentation.rest.request.LoginRequest;
+import com.educore.identifyservice.presentation.rest.request.LogoutRequest;
+import com.educore.identifyservice.presentation.rest.request.RefreshTokenRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,5 +64,15 @@ public class AuthenticationController {
                                         ))
                         )
                 );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(
+            @Valid @RequestBody LogoutRequest request
+    ) {
+        authenticationUseCase.logout(new LogoutCommand(request.refreshToken()));
+
+        return ResponseEntity
+                .ok(ApiResponse.success("Logout successful"));
     }
 }
