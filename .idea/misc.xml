@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/platform/educore-security-starter/pom.xml" />
         <option value="$PROJECT_DIR$/platform/educore-logging-starter/pom.xml" />
         <option value="$PROJECT_DIR$/platform/educore-web-starter/pom.xml" />
+        <option value="$PROJECT_DIR$/platform/educore-data-starter/pom.xml" />
       </list>
     </option>
   </component>
