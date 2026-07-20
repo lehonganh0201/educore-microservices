@@ -1,4 +1,4 @@
-package com.educore.logging.constant;
+package com.educore.common.constant;
 
 /**
  * ----------------------------------------------------------------------------

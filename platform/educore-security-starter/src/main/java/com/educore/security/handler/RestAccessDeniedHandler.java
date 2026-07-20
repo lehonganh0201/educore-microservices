@@ -7,6 +7,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,8 +37,12 @@ public final class RestAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
-    private final BearerTokenAccessDeniedHandler delegate =
-            new BearerTokenAccessDeniedHandler();
+    private final BearerTokenAccessDeniedHandler delegate = new BearerTokenAccessDeniedHandler();
+
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    RestAccessDeniedHandler.class
+            );
 
     public RestAccessDeniedHandler(
             ObjectMapper objectMapper
@@ -74,6 +80,14 @@ public final class RestAccessDeniedHandler implements AccessDeniedHandler {
                         ERROR_MESSAGE,
                         ApiError.of(ERROR_CODE)
                 );
+
+        log.warn(
+                "Access denied path={} principal={}",
+                request.getRequestURI(),
+                request.getUserPrincipal() == null
+                        ? "anonymous"
+                        : request.getUserPrincipal().getName()
+        );
 
         writeJsonResponse(response, responseBody);
     }

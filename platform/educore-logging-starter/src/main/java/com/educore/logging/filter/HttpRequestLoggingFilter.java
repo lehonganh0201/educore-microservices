@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static com.educore.logging.constant.LoggingConstants.MDC_REQUEST_ID;
+import static com.educore.common.constant.LoggingConstants.MDC_REQUEST_ID;
 
 /**
  * ----------------------------------------------------------------------------
