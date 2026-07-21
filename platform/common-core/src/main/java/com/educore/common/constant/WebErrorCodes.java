@@ -41,6 +41,9 @@ public final class WebErrorCodes {
     public static final String INTERNAL_SERVER_ERROR =
             "INTERNAL_SERVER_ERROR";
 
+    public static final String SERVICE_UNAVAILABLE =
+            "SERVICE_UNAVAILABLE_ERROR";
+
     private WebErrorCodes() {
         throw new IllegalStateException(
                 "Constants class must not be instantiated"
