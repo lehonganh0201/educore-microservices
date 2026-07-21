@@ -7,7 +7,7 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9090/realms/educore}
-
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:9090/realms/educore/protocol/openid-connect/certs}
 eureka:
   instance:
     prefer-ip-address: ${EUREKA_PREFER_IP_ADDRESS:false}
@@ -23,12 +23,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info
 
   endpoint:
-    gateway:
-      access: read-only
-
     health:
       show-details: ${HEALTH_SHOW_DETAILS:never}
 

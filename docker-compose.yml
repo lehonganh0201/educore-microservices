@@ -132,6 +132,75 @@ services:
     networks:
       - educore-network
 
+  identify-service:
+    container_name: educore-identify-service
+
+    image: educore/identify-service:0.0.1
+
+    build:
+      # Build từ root vì identify-service phụ thuộc các module common
+      context: .
+      dockerfile: ./services/identify-service/Dockerfile
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8081
+
+      # Config Server nội bộ Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+
+      # Eureka nội bộ Docker
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      EUREKA_PREFER_IP_ADDRESS: "true"
+
+      # URL issuer phải khớp claim iss của token
+      KEYCLOAK_ISSUER_URI: http://localhost:9090/realms/educore
+
+      # URL nội bộ để lấy public key
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/educore/protocol/openid-connect/certs
+
+      # URL nội bộ để gọi Token API và Admin REST API
+      KEYCLOAK_ADMIN_URL: http://keycloak:8080
+
+      KEYCLOAK_REALM: educore
+      KEYCLOAK_ADMIN_CLIENT_ID: identify-service
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-identify-service}
+
+      HEALTH_SHOW_DETAILS: never
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+      discovery-service:
+        condition: service_healthy
+
+      keycloak:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
   postgres:
     image: postgres:17-alpine
     container_name: educore-postgres
@@ -165,10 +234,12 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.7.0
     container_name: educore-keycloak
+
     restart: unless-stopped
 
     command:
       - start-dev
+      - --import-realm
 
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
@@ -177,10 +248,17 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: lehonganh
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-lehonganh}
+
+      # Phải cùng password với POSTGRES_PASSWORD
+      KC_DB_PASSWORD: ${DB_PASSWORD:-lehonganh}
 
       KC_HTTP_ENABLED: "true"
+
+      # URL public dùng cho trình duyệt và claim "iss"
       KC_HOSTNAME: http://localhost:9090
+
+      # Cho phép service trong Docker truy cập qua keycloak:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
 
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
@@ -188,9 +266,23 @@ services:
     ports:
       - "9090:8080"
 
+    volumes:
+      - ./script/keycloak/import:/opt/keycloak/data/import:ro
+
     depends_on:
       postgres:
         condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep -q 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
     networks:
       - educore-network
