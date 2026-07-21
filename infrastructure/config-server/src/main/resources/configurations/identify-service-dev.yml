@@ -31,7 +31,9 @@ management:
 
 edu:
   keycloak:
-    base-url: ${KEYCLOAK_ADMIN_URL:http://localhost:9090}
+    base-url: ${KEYCLOAK_BASE_URL:http://localhost:9090}
     realm: ${KEYCLOAK_REALM:educore}
-    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:identify-service}
-    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:identify-service}
+    client-id: ${KEYCLOAK_CLIENT_ID:identify-service}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:identify-service}
+    admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:identify-service-admin}
+    admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:identify-service-admin}

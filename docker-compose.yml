@@ -163,11 +163,13 @@ services:
       KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/educore/protocol/openid-connect/certs
 
       # URL nội bộ để gọi Token API và Admin REST API
-      KEYCLOAK_ADMIN_URL: http://keycloak:8080
+      KEYCLOAK_BASE_URL: http://keycloak:8080
 
       KEYCLOAK_REALM: educore
-      KEYCLOAK_ADMIN_CLIENT_ID: identify-service
-      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-identify-service}
+      KEYCLOAK_CLIENT_ID: identify-service
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-identify-service}
+      KEYCLOAK_ADMIN_CLIENT_ID: identify-service-admin
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-identify-service-admin}
 
       HEALTH_SHOW_DETAILS: never
 

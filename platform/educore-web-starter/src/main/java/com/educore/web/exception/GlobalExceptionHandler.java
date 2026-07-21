@@ -102,6 +102,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(
+            IllegalArgumentException.class
+    )
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
+            IllegalArgumentException exception
+    ) {
+        return badRequest(
+                exception.getMessage(),
+                WebErrorCodes.VALIDATION_FAILED,
+                null
+        );
+    }
+
+    @ExceptionHandler(
             HandlerMethodValidationException.class
     )
     public ResponseEntity<ApiResponse<Void>> handleHandlerMethodValidation(
