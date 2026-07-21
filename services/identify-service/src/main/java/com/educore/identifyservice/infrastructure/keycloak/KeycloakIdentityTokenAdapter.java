@@ -48,7 +48,7 @@ public class KeycloakIdentityTokenAdapter implements IdentityTokenProvider {
         } catch (RestClientResponseException exception) {
             if (exception.getStatusCode()
                     .is4xxClientError()) {
-                throw new BadRequestException("Invalid username or password");
+                throw new BadRequestException(exception.getMessage());
             }
 
             throw new BadRequestException("Failed to request token from Keycloak");
