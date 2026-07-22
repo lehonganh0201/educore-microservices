@@ -1,13 +1,14 @@
 package com.educore.studentservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
+import com.educore.studentservice.application.command.UpdateMyStudentProfileCommand;
 import com.educore.studentservice.application.port.in.StudentSelfServiceUseCase;
 import com.educore.studentservice.application.result.StudentResult;
+import com.educore.studentservice.presentation.rest.request.UpdateMyStudentProfileRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * ----------------------------------------------------------------------------
@@ -32,8 +33,25 @@ public class StudentSelfController {
     public ResponseEntity<ApiResponse<StudentResult>> getMyProfile() {
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        "GEt self profile successful",
+                        "Get self profile successful",
                         studentSelfServiceUseCase.getMyProfile()
+                )
+        );
+    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<StudentResult>> updateMyProfile(
+            @Valid @RequestBody UpdateMyStudentProfileRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Update self profile successful",
+                        studentSelfServiceUseCase.updateMyProfile(
+                                        new UpdateMyStudentProfileCommand(
+                                                request.phone(),
+                                                request.address()
+                                        )
+                                )
                 )
         );
     }
