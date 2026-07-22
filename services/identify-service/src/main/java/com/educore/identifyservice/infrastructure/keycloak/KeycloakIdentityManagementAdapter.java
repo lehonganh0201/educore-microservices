@@ -256,9 +256,6 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
 
                     UserRepresentation representation = resource.toRepresentation();
 
-                    representation.setUsername(
-                            account.username().value()
-                    );
                     representation.setEmail(
                             account.email().value()
                     );

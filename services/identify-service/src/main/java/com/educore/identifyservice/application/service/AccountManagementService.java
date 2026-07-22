@@ -87,14 +87,6 @@ public class AccountManagementService implements AccountManagementUseCase {
     public AccountResult update(
             UpdateAccountCommand command
     ) {
-        if (identityManagementPort.existsByUsernameOtherThan(
-                        command.username(),
-                        command.accountId())) {
-            throw new AccountAlreadyExistsException(
-                    "Username already exists username: " + command.username().value()
-            );
-        }
-
         if (identityManagementPort.existsByEmailOtherThan(
                         command.email(),
                         command.accountId())) {
@@ -106,7 +98,6 @@ public class AccountManagementService implements AccountManagementUseCase {
         Account updated = identityManagementPort.update(
                 new UpdateIdentityAccount(
                         command.accountId(),
-                        command.username(),
                         command.email(),
                         command.firstName(),
                         command.lastName()

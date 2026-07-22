@@ -15,7 +15,6 @@ import com.educore.identifyservice.domain.model.Username;
 
 public record UpdateAccountCommand(
         AccountId accountId,
-        Username username,
         EmailAddress email,
         String firstName,
         String lastName
