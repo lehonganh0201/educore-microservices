@@ -2,10 +2,7 @@ package com.educore.identifyservice.application.service;
 
 import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
-import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
-import com.educore.identifyservice.application.command.CreateAccountCommand;
-import com.educore.identifyservice.application.command.ReplaceAccountRolesCommand;
-import com.educore.identifyservice.application.command.UpdateAccountCommand;
+import com.educore.identifyservice.application.command.*;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
 import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
@@ -141,5 +138,16 @@ public class AccountManagementService implements AccountManagementUseCase {
                 );
 
         return AccountResult.from(account);
+    }
+
+    @Override
+    public void resetPassword(
+            ResetAccountPasswordCommand command
+    ) {
+        identityManagementPort.resetPassword(
+                command.accountId(),
+                command.password(),
+                command.temporary()
+        );
     }
 }

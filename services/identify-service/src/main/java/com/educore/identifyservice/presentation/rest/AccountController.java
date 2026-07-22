@@ -2,10 +2,7 @@ package com.educore.identifyservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
-import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
-import com.educore.identifyservice.application.command.CreateAccountCommand;
-import com.educore.identifyservice.application.command.ReplaceAccountRolesCommand;
-import com.educore.identifyservice.application.command.UpdateAccountCommand;
+import com.educore.identifyservice.application.command.*;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
@@ -13,10 +10,7 @@ import com.educore.identifyservice.domain.model.AccountId;
 import com.educore.identifyservice.domain.model.EmailAddress;
 import com.educore.identifyservice.domain.model.RawPassword;
 import com.educore.identifyservice.domain.model.Username;
-import com.educore.identifyservice.presentation.rest.request.ChangeAccountStatusRequest;
-import com.educore.identifyservice.presentation.rest.request.CreateAccountRequest;
-import com.educore.identifyservice.presentation.rest.request.ReplaceAccountRolesRequest;
-import com.educore.identifyservice.presentation.rest.request.UpdateAccountRequest;
+import com.educore.identifyservice.presentation.rest.request.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -150,6 +144,21 @@ public class AccountController {
                                         AccountId.of(accountId),
                                         request.roles()
                                 ))
+                )
+        );
+    }
+
+    @PutMapping("/{accountId}/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void resetPassword(
+            @PathVariable String accountId,
+            @Valid @RequestBody ResetAccountPasswordRequest request
+    ) {
+        accountUseCase.resetPassword(
+                new ResetAccountPasswordCommand(
+                        AccountId.of(accountId),
+                        new RawPassword(request.password()),
+                        request.temporary()
                 )
         );
     }
