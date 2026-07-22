@@ -155,4 +155,9 @@ public class AccountManagementService implements AccountManagementUseCase {
     public void logoutSessions(AccountId accountId) {
         identityManagementPort.logoutSessions(accountId);
     }
+
+    @Override
+    public void delete(AccountId accountId) {
+        identityManagementPort.delete(accountId);
+    }
 }

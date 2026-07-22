@@ -60,4 +60,6 @@ public interface IdentityManagementPort {
     );
 
     void logoutSessions(AccountId accountId);
+
+    void delete(AccountId accountId);
 }
