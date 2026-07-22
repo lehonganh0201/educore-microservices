@@ -1,13 +1,18 @@
 package com.educore.identifyservice.application.service;
 
+import com.educore.common.dto.PageResponse;
+import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
+import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
+import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
 import com.educore.identifyservice.domain.exception.AccountAlreadyExistsException;
 import com.educore.identifyservice.domain.model.Account;
 import com.educore.identifyservice.domain.model.AccountId;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 /**
@@ -62,5 +67,18 @@ public class AccountManagementService implements AccountManagementUseCase {
         return AccountResult.from(
                 identityManagementPort.findById(accountId)
         );
+    }
+
+    @Override
+    public PageResponse<AccountResult> search(SearchAccountsQuery query) {
+        Page<AccountResult> resultPage = identityManagementPort.search(
+                new AccountSearchCriteria(
+                        query.keyword(),
+                        query.page(),
+                        query.size()
+                )
+        ).map(AccountResult::from);
+
+        return SpringPageResponseMapper.from(resultPage);
     }
 }

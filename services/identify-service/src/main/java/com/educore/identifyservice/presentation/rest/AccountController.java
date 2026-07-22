@@ -1,8 +1,10 @@
 package com.educore.identifyservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
+import com.educore.common.dto.PageResponse;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
+import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
 import com.educore.identifyservice.domain.model.AccountId;
 import com.educore.identifyservice.domain.model.EmailAddress;
@@ -10,6 +12,8 @@ import com.educore.identifyservice.domain.model.RawPassword;
 import com.educore.identifyservice.domain.model.Username;
 import com.educore.identifyservice.presentation.rest.request.CreateAccountRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,6 +58,23 @@ public class AccountController {
                                 request.roles())
                         )
                 )
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<PageResponse<AccountResult>> search(
+            @RequestParam(defaultValue = "") String keyword,
+
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
+    ) {
+        return ResponseEntity.ok(
+                accountUseCase.search(new SearchAccountsQuery(
+                        keyword,
+                        page,
+                        size
+                ))
         );
     }
 
