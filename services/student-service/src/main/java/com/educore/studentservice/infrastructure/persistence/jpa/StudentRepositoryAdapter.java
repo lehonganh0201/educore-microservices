@@ -1,6 +1,7 @@
 package com.educore.studentservice.infrastructure.persistence.jpa;
 
 import com.educore.studentservice.application.port.out.StudentRepositoryPort;
+import com.educore.studentservice.application.port.out.model.StudentSearchCriteria;
 import com.educore.studentservice.domain.exception.StudentAlreadyExistsException;
 import com.educore.studentservice.domain.exception.StudentConcurrentModificationException;
 import com.educore.studentservice.domain.model.IdentityId;
@@ -8,6 +9,10 @@ import com.educore.studentservice.domain.model.Student;
 import com.educore.studentservice.domain.model.StudentCode;
 import com.educore.studentservice.domain.model.StudentId;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
@@ -89,5 +94,24 @@ public class StudentRepositoryAdapter implements StudentRepositoryPort {
         } catch (DataIntegrityViolationException exception) {
             throw new StudentAlreadyExistsException("Identity or Student Code already exists");
         }
+    }
+
+    @Override
+    public Page<Student> search(StudentSearchCriteria criteria) {
+        PageRequest pageRequest = PageRequest.of(
+                criteria.page(),
+                criteria.size(),
+                Sort.by(
+                        Sort.Direction.DESC,
+                        "createdAt"
+                )
+        );
+
+        Page<StudentJpaEntity> page = repository.findAll(
+                        StudentJpaSpecification.from(criteria),
+                        pageRequest
+                );
+
+        return page.map(mapper::toDomain);
     }
 }
