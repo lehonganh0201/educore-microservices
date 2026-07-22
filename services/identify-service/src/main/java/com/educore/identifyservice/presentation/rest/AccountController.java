@@ -174,4 +174,15 @@ public class AccountController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{accountId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable String accountId
+    ) {
+        accountUseCase.delete(
+                AccountId.of(accountId)
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }

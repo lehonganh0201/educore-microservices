@@ -32,4 +32,6 @@ public interface AccountManagementUseCase {
     void resetPassword(ResetAccountPasswordCommand command);
 
     void logoutSessions(AccountId accountId);
+
+    void delete(AccountId accountId);
 }

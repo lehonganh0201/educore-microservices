@@ -349,6 +349,17 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public void delete(AccountId accountId) {
+        executeForAccount(
+                accountId,
+                () -> {
+                    user(accountId).remove();
+                    return null;
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action
