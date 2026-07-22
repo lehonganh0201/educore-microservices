@@ -2,6 +2,7 @@ package com.educore.identifyservice.application.port.out;
 
 import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
+import com.educore.identifyservice.application.port.out.model.UpdateIdentityAccount;
 import com.educore.identifyservice.domain.model.Account;
 import com.educore.identifyservice.domain.model.AccountId;
 import com.educore.identifyservice.domain.model.EmailAddress;
@@ -40,4 +41,6 @@ public interface IdentityManagementPort {
     Page<Account> search(
             AccountSearchCriteria criteria
     );
+
+    Account update(UpdateIdentityAccount account);
 }

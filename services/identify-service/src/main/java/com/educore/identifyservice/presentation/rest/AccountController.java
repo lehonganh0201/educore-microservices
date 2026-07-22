@@ -3,6 +3,7 @@ package com.educore.identifyservice.presentation.rest;
 import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
+import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
@@ -11,6 +12,7 @@ import com.educore.identifyservice.domain.model.EmailAddress;
 import com.educore.identifyservice.domain.model.RawPassword;
 import com.educore.identifyservice.domain.model.Username;
 import com.educore.identifyservice.presentation.rest.request.CreateAccountRequest;
+import com.educore.identifyservice.presentation.rest.request.UpdateAccountRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -88,6 +90,27 @@ public class AccountController {
                         accountUseCase.findById(
                                 AccountId.of(accountId)
                         )
+                )
+        );
+    }
+
+    @PutMapping("/{accountId}")
+    public ResponseEntity<ApiResponse<AccountResult>> update(
+            @PathVariable String accountId,
+
+            @Valid @RequestBody UpdateAccountRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Update account successful",
+                        accountUseCase.update(
+                                new UpdateAccountCommand(
+                                        AccountId.of(accountId),
+                                        Username.of(request.username()),
+                                        EmailAddress.of(request.email()),
+                                        request.firstName(),
+                                        request.lastName()
+                                ))
                 )
         );
     }

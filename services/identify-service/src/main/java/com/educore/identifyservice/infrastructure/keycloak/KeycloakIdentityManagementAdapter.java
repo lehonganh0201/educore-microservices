@@ -3,6 +3,7 @@ package com.educore.identifyservice.infrastructure.keycloak;
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
 import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
+import com.educore.identifyservice.application.port.out.model.UpdateIdentityAccount;
 import com.educore.identifyservice.domain.exception.*;
 import com.educore.identifyservice.domain.model.*;
 import jakarta.ws.rs.ForbiddenException;
@@ -244,6 +245,37 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         });
     }
 
+    @Override
+    public Account update(
+            UpdateIdentityAccount account
+    ) {
+        return executeForAccount(
+                account.accountId(),
+                () -> {
+                    UserResource resource = user(account.accountId());
+
+                    UserRepresentation representation = resource.toRepresentation();
+
+                    representation.setUsername(
+                            account.username().value()
+                    );
+                    representation.setEmail(
+                            account.email().value()
+                    );
+                    representation.setFirstName(
+                            account.firstName()
+                    );
+                    representation.setLastName(
+                            account.lastName()
+                    );
+
+                    resource.update(representation);
+
+                    return findById(account.accountId());
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action
@@ -263,41 +295,41 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
             Set<AccountRole> targetRoles
     ) {
         RoleScopeResource roleScope = user(accountId)
-                        .roles()
-                        .realmLevel();
+                .roles()
+                .realmLevel();
 
         List<RoleRepresentation> currentManagedRoles = roleScope.listAll()
-                        .stream()
-                        .filter(this::isManagedRole)
-                        .toList();
+                .stream()
+                .filter(this::isManagedRole)
+                .toList();
 
         List<RoleRepresentation> targetRepresentations = targetRoles.stream()
-                        .map(this::resolveRole)
-                        .toList();
+                .map(this::resolveRole)
+                .toList();
 
         Set<String> currentNames = currentManagedRoles.stream()
-                        .map(RoleRepresentation::getName)
-                        .collect(Collectors.toSet());
+                .map(RoleRepresentation::getName)
+                .collect(Collectors.toSet());
 
         Set<String> targetNames = targetRepresentations.stream()
-                        .map(RoleRepresentation::getName)
-                        .collect(Collectors.toSet());
+                .map(RoleRepresentation::getName)
+                .collect(Collectors.toSet());
 
         List<RoleRepresentation> rolesToAdd = targetRepresentations.stream()
-                        .filter(role ->
-                                !currentNames.contains(
-                                        role.getName()
-                                )
+                .filter(role ->
+                        !currentNames.contains(
+                                role.getName()
                         )
-                        .toList();
+                )
+                .toList();
 
         List<RoleRepresentation> rolesToRemove = currentManagedRoles.stream()
-                        .filter(role ->
-                                !targetNames.contains(
-                                        role.getName()
-                                )
+                .filter(role ->
+                        !targetNames.contains(
+                                role.getName()
                         )
-                        .toList();
+                )
+                .toList();
 
         try {
             if (!rolesToAdd.isEmpty()) {
@@ -324,9 +356,9 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
     ) {
         try {
             List<RoleRepresentation> current = roleScope.listAll()
-                            .stream()
-                            .filter(this::isManagedRole)
-                            .toList();
+                    .stream()
+                    .filter(this::isManagedRole)
+                    .toList();
 
             if (!current.isEmpty()) {
                 roleScope.remove(current);
@@ -360,21 +392,21 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
             UserRepresentation representation
     ) {
         Set<AccountRole> roles = user(AccountId.of(representation.getId()))
-                        .roles()
-                        .realmLevel()
-                        .listAll()
-                        .stream()
-                        .map(RoleRepresentation::getName)
-                        .map(AccountRole::fromKeycloakRole)
-                        .flatMap(Optional::stream)
-                        .collect(Collectors.toUnmodifiableSet());
+                .roles()
+                .realmLevel()
+                .listAll()
+                .stream()
+                .map(RoleRepresentation::getName)
+                .map(AccountRole::fromKeycloakRole)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toUnmodifiableSet());
 
         Instant createdAt = representation.getCreatedTimestamp() == null
-                        ? null
-                        : Instant.ofEpochMilli(
-                        representation
-                                .getCreatedTimestamp()
-                );
+                ? null
+                : Instant.ofEpochMilli(
+                representation
+                        .getCreatedTimestamp()
+        );
 
         return new Account(
                 AccountId.of(representation.getId()),
