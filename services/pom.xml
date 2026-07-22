@@ -18,6 +18,7 @@
 
     <modules>
         <module>identify-service</module>
+        <module>student-service</module>
     </modules>
 
 </project>

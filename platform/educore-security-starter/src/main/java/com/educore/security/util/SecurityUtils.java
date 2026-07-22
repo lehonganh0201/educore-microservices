@@ -47,8 +47,7 @@ public final class SecurityUtils {
     /**
      * Lấy Authentication hiện tại.
      */
-    public static Optional<Authentication>
-    getAuthentication() {
+    public static Optional<Authentication> getAuthentication() {
         return Optional.ofNullable(
                 SecurityContextHolder
                         .getContext()
@@ -157,8 +156,7 @@ public final class SecurityUtils {
                 id
         );
 
-        String email =
-                jwt.getClaimAsString(CLAIM_EMAIL);
+        String email = jwt.getClaimAsString(CLAIM_EMAIL);
 
         String fullName = resolveFullName(jwt);
 
@@ -181,13 +179,11 @@ public final class SecurityUtils {
     private static Jwt resolveJwt(
             Authentication authentication
     ) {
-        if (authentication
-                instanceof JwtAuthenticationToken jwtToken) {
+        if (authentication instanceof JwtAuthenticationToken jwtToken) {
             return jwtToken.getToken();
         }
 
-        if (authentication.getPrincipal()
-                instanceof Jwt jwt) {
+        if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt;
         }
 
@@ -198,26 +194,21 @@ public final class SecurityUtils {
             Collection<? extends GrantedAuthority>
                     grantedAuthorities
     ) {
-        if (grantedAuthorities == null
-                || grantedAuthorities.isEmpty()) {
+        if (grantedAuthorities == null || grantedAuthorities.isEmpty()) {
             return Set.of();
         }
 
-        Set<String> authorities =
-                new LinkedHashSet<>();
+        Set<String> authorities = new LinkedHashSet<>();
 
-        for (GrantedAuthority grantedAuthority
-                : grantedAuthorities) {
+        for (GrantedAuthority grantedAuthority : grantedAuthorities) {
 
             if (grantedAuthority == null) {
                 continue;
             }
 
-            String authority =
-                    grantedAuthority.getAuthority();
+            String authority = grantedAuthority.getAuthority();
 
-            if (authority == null
-                    || authority.isBlank()) {
+            if (authority == null || authority.isBlank()) {
                 continue;
             }
 
@@ -228,19 +219,15 @@ public final class SecurityUtils {
     }
 
     private static String resolveFullName(Jwt jwt) {
-        String fullName =
-                jwt.getClaimAsString(CLAIM_FULL_NAME);
+        String fullName = jwt.getClaimAsString(CLAIM_FULL_NAME);
 
-        if (fullName != null
-                && !fullName.isBlank()) {
+        if (fullName != null && !fullName.isBlank()) {
             return fullName.trim();
         }
 
-        String givenName =
-                jwt.getClaimAsString(CLAIM_GIVEN_NAME);
+        String givenName = jwt.getClaimAsString(CLAIM_GIVEN_NAME);
 
-        String familyName =
-                jwt.getClaimAsString(CLAIM_FAMILY_NAME);
+        String familyName = jwt.getClaimAsString(CLAIM_FAMILY_NAME);
 
         String combinedName = String.join(
                 " ",
@@ -261,8 +248,7 @@ public final class SecurityUtils {
         }
 
         for (String value : values) {
-            if (value != null
-                    && !value.isBlank()) {
+            if (value != null && !value.isBlank()) {
                 return value.trim();
             }
         }
