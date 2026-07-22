@@ -1,6 +1,7 @@
 package com.educore.studentservice.application.port.in;
 
 import com.educore.common.dto.PageResponse;
+import com.educore.studentservice.application.command.ChangeStudentStatusCommand;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.query.SearchStudentsQuery;
@@ -26,4 +27,6 @@ public interface StudentManagementUseCase {
     PageResponse<StudentResult> search(SearchStudentsQuery query);
 
     StudentResult update(UpdateStudentCommand command);
+
+    StudentResult changeStatus(ChangeStudentStatusCommand command);
 }

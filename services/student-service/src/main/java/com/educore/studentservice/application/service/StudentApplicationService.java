@@ -2,6 +2,7 @@ package com.educore.studentservice.application.service;
 
 import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
+import com.educore.studentservice.application.command.ChangeStudentStatusCommand;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
@@ -113,6 +114,24 @@ public class StudentApplicationService implements StudentManagementUseCase {
                         LocalDate.now(clock),
                         clock.instant()
                 );
+
+        return StudentResult.from(
+                studentRepository.save(updated)
+        );
+    }
+
+    @Override
+    public StudentResult changeStatus(
+            ChangeStudentStatusCommand command
+    ) {
+        Student current = getStudent(
+                StudentId.of(command.studentId())
+        );
+
+        Student updated = current.changeStatus(
+                command.status(),
+                clock.instant()
+        );
 
         return StudentResult.from(
                 studentRepository.save(updated)

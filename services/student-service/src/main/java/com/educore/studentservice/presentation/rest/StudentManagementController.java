@@ -2,6 +2,7 @@ package com.educore.studentservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
+import com.educore.studentservice.application.command.ChangeStudentStatusCommand;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
@@ -9,6 +10,7 @@ import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
 import com.educore.studentservice.domain.model.Gender;
 import com.educore.studentservice.domain.model.StudentStatus;
+import com.educore.studentservice.presentation.rest.request.ChangeStudentStatusRequest;
 import com.educore.studentservice.presentation.rest.request.CreateStudentRequest;
 import com.educore.studentservice.presentation.rest.request.UpdateStudentRequest;
 import jakarta.validation.Valid;
@@ -124,6 +126,25 @@ public class StudentManagementController {
                                         request.enrollmentYear()
                                 )
                         )
+                )
+        );
+    }
+
+    @PatchMapping("/{studentId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<StudentResult>> changeStatus(
+            @PathVariable UUID studentId,
+            @Valid @RequestBody ChangeStudentStatusRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Change student status successful",
+                        studentManagementUseCase.changeStatus(
+                                        new ChangeStudentStatusCommand(
+                                                studentId,
+                                                request.status()
+                                        )
+                                )
                 )
         );
     }
