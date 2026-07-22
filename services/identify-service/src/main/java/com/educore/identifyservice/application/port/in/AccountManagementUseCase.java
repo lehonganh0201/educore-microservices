@@ -2,6 +2,7 @@ package com.educore.identifyservice.application.port.in;
 
 import com.educore.common.dto.PageResponse;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
+import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
 import com.educore.identifyservice.domain.model.AccountId;
@@ -19,7 +20,9 @@ import com.educore.identifyservice.domain.model.AccountId;
 public interface AccountManagementUseCase {
     AccountResult create(CreateAccountCommand command);
 
-    AccountResult findById(AccountId of);
+    AccountResult findById(AccountId accountId);
 
     PageResponse<AccountResult> search(SearchAccountsQuery query);
+
+    AccountResult update(UpdateAccountCommand command);
 }

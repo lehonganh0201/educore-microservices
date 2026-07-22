@@ -3,10 +3,12 @@ package com.educore.identifyservice.application.service;
 import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
+import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
 import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
+import com.educore.identifyservice.application.port.out.model.UpdateIdentityAccount;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
 import com.educore.identifyservice.domain.exception.AccountAlreadyExistsException;
@@ -81,4 +83,38 @@ public class AccountManagementService implements AccountManagementUseCase {
 
         return SpringPageResponseMapper.from(resultPage);
     }
+
+    @Override
+    public AccountResult update(
+            UpdateAccountCommand command
+    ) {
+        if (identityManagementPort.existsByUsernameOtherThan(
+                        command.username(),
+                        command.accountId())) {
+            throw new AccountAlreadyExistsException(
+                    "Username already exists username: " + command.username().value()
+            );
+        }
+
+        if (identityManagementPort.existsByEmailOtherThan(
+                        command.email(),
+                        command.accountId())) {
+            throw new AccountAlreadyExistsException(
+                    "Email already exists email: " + command.email().value()
+            );
+        }
+
+        Account updated = identityManagementPort.update(
+                new UpdateIdentityAccount(
+                        command.accountId(),
+                        command.username(),
+                        command.email(),
+                        command.firstName(),
+                        command.lastName()
+                )
+        );
+
+        return AccountResult.from(updated);
+    }
+
 }
