@@ -1,10 +1,7 @@
 package com.educore.identifyservice.application.port.in;
 
 import com.educore.common.dto.PageResponse;
-import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
-import com.educore.identifyservice.application.command.CreateAccountCommand;
-import com.educore.identifyservice.application.command.ReplaceAccountRolesCommand;
-import com.educore.identifyservice.application.command.UpdateAccountCommand;
+import com.educore.identifyservice.application.command.*;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
 import com.educore.identifyservice.application.result.AccountResult;
 import com.educore.identifyservice.domain.model.AccountId;
@@ -31,4 +28,6 @@ public interface AccountManagementUseCase {
     AccountResult changeStatus(ChangeAccountStatusCommand command);
 
     AccountResult replaceRoles(ReplaceAccountRolesCommand command);
+
+    void resetPassword(ResetAccountPasswordCommand command);
 }

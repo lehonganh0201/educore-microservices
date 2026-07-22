@@ -52,4 +52,10 @@ public interface IdentityManagementPort {
             AccountId accountId,
             Set<AccountRole> roles
     );
+
+    void resetPassword(
+            AccountId accountId,
+            RawPassword password,
+            boolean temporary
+    );
 }

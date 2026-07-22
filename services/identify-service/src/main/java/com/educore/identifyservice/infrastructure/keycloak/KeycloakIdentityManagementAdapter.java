@@ -314,6 +314,30 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public void resetPassword(
+            AccountId accountId,
+            RawPassword password,
+            boolean temporary
+    ) {
+        executeForAccount(
+                accountId,
+                () -> {
+                    CredentialRepresentation credential = new CredentialRepresentation();
+
+                    credential.setType(
+                            CredentialRepresentation.PASSWORD
+                    );
+                    credential.setValue(password.value());
+                    credential.setTemporary(temporary);
+
+                    user(accountId).resetPassword(credential);
+
+                    return null;
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action
