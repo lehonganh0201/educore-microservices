@@ -5,6 +5,7 @@ import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.security.util.SecurityUtils;
 import com.educore.studentservice.application.command.ChangeStudentStatusCommand;
 import com.educore.studentservice.application.command.CreateStudentCommand;
+import com.educore.studentservice.application.command.UpdateMyStudentProfileCommand;
 import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
 import com.educore.studentservice.application.port.in.StudentSelfServiceUseCase;
@@ -151,7 +152,8 @@ public class StudentApplicationService implements StudentManagementUseCase, Stud
     @Override
     @Transactional(readOnly = true)
     public StudentResult getMyProfile() {
-        IdentityId identityId = IdentityId.of(SecurityUtils.getCurrentUserId().orElseThrow(() -> new StudentNotFoundException("Not found student with identity id")));
+        IdentityId identityId = IdentityId.of(SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new StudentNotFoundException("Not found student with identity id")));
 
         Student student = studentRepository
                 .findByIdentityId(identityId)
@@ -162,5 +164,32 @@ public class StudentApplicationService implements StudentManagementUseCase, Stud
                 );
 
         return StudentResult.from(student);
+    }
+
+    @Override
+    public StudentResult updateMyProfile(
+            UpdateMyStudentProfileCommand command
+    ) {
+        IdentityId identityId = IdentityId.of(SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new StudentNotFoundException("Not found student with identity id")));
+
+        Student current = studentRepository
+                .findByIdentityId(identityId)
+                .orElseThrow(() ->
+                        new StudentNotFoundException(
+                                "identityId="
+                                        + identityId.value()
+                        )
+                );
+
+        Student updated = current.updateOwnContact(
+                command.phone(),
+                command.address(),
+                clock.instant()
+        );
+
+        return StudentResult.from(
+                studentRepository.save(updated)
+        );
     }
 }

@@ -1,5 +1,6 @@
 package com.educore.studentservice.application.port.in;
 
+import com.educore.studentservice.application.command.UpdateMyStudentProfileCommand;
 import com.educore.studentservice.application.result.StudentResult;
 
 /**
@@ -14,4 +15,6 @@ import com.educore.studentservice.application.result.StudentResult;
 
 public interface StudentSelfServiceUseCase {
     StudentResult getMyProfile();
+
+    StudentResult updateMyProfile(UpdateMyStudentProfileCommand command);
 }
