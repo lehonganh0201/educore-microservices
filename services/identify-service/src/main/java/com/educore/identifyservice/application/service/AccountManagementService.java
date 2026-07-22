@@ -150,4 +150,9 @@ public class AccountManagementService implements AccountManagementUseCase {
                 command.temporary()
         );
     }
+
+    @Override
+    public void logoutSessions(AccountId accountId) {
+        identityManagementPort.logoutSessions(accountId);
+    }
 }

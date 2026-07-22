@@ -149,8 +149,7 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resetPassword(
+    public ResponseEntity<Void> resetPassword(
             @PathVariable String accountId,
             @Valid @RequestBody ResetAccountPasswordRequest request
     ) {
@@ -161,5 +160,18 @@ public class AccountController {
                         request.temporary()
                 )
         );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{accountId}/logout-sessions")
+    public ResponseEntity<Void> logoutSessions(
+            @PathVariable String accountId
+    ) {
+        accountUseCase.logoutSessions(
+                AccountId.of(accountId)
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

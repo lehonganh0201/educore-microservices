@@ -30,4 +30,6 @@ public interface AccountManagementUseCase {
     AccountResult replaceRoles(ReplaceAccountRolesCommand command);
 
     void resetPassword(ResetAccountPasswordCommand command);
+
+    void logoutSessions(AccountId accountId);
 }
