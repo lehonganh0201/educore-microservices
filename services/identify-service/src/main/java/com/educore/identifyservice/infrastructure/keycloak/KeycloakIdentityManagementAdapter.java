@@ -338,6 +338,17 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public void logoutSessions(AccountId accountId) {
+        executeForAccount(
+                accountId,
+                () -> {
+                    user(accountId).logout();
+                    return null;
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action

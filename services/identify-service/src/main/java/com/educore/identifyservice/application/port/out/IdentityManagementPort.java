@@ -58,4 +58,6 @@ public interface IdentityManagementPort {
             RawPassword password,
             boolean temporary
     );
+
+    void logoutSessions(AccountId accountId);
 }
