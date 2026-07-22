@@ -1,6 +1,7 @@
 package com.educore.identifyservice.infrastructure.keycloak;
 
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
+import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
 import com.educore.identifyservice.domain.exception.*;
 import com.educore.identifyservice.domain.model.*;
@@ -18,6 +19,10 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -159,10 +164,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
                 );
             }
 
-            createdId =
-                    CreatedResponseUtil.getCreatedId(
-                            response
-                    );
+            createdId = CreatedResponseUtil.getCreatedId(response);
 
         } catch (ProcessingException exception) {
             throw new IdentityProviderUnavailableException(exception.getMessage());
@@ -197,6 +199,51 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public Page<Account> search(AccountSearchCriteria criteria) {
+        return execute(() -> {
+            UsersResource usersResource = users();
+
+            List<UserRepresentation> representations;
+            long total;
+
+            if (criteria.keyword() == null || criteria.keyword().isBlank()) {
+                representations = usersResource.list(
+                        criteria.offset(),
+                        criteria.size()
+                );
+
+                total = usersResource.count();
+            } else {
+                String keyword = criteria.keyword().trim();
+
+                representations = usersResource.search(
+                        keyword,
+                        criteria.offset(),
+                        criteria.size(),
+                        true
+                );
+
+                total = usersResource.count(keyword);
+            }
+
+            List<Account> accounts = representations.stream()
+                    .map(this::mapAccount)
+                    .toList();
+
+            Pageable pageable = PageRequest.of(
+                    criteria.page(),
+                    criteria.size()
+            );
+
+            return new PageImpl<>(
+                    accounts,
+                    pageable,
+                    total
+            );
+        });
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action
@@ -215,34 +262,28 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
             AccountId accountId,
             Set<AccountRole> targetRoles
     ) {
-        RoleScopeResource roleScope =
-                user(accountId)
+        RoleScopeResource roleScope = user(accountId)
                         .roles()
                         .realmLevel();
 
-        List<RoleRepresentation> currentManagedRoles =
-                roleScope.listAll()
+        List<RoleRepresentation> currentManagedRoles = roleScope.listAll()
                         .stream()
                         .filter(this::isManagedRole)
                         .toList();
 
-        List<RoleRepresentation> targetRepresentations =
-                targetRoles.stream()
+        List<RoleRepresentation> targetRepresentations = targetRoles.stream()
                         .map(this::resolveRole)
                         .toList();
 
-        Set<String> currentNames =
-                currentManagedRoles.stream()
+        Set<String> currentNames = currentManagedRoles.stream()
                         .map(RoleRepresentation::getName)
                         .collect(Collectors.toSet());
 
-        Set<String> targetNames =
-                targetRepresentations.stream()
+        Set<String> targetNames = targetRepresentations.stream()
                         .map(RoleRepresentation::getName)
                         .collect(Collectors.toSet());
 
-        List<RoleRepresentation> rolesToAdd =
-                targetRepresentations.stream()
+        List<RoleRepresentation> rolesToAdd = targetRepresentations.stream()
                         .filter(role ->
                                 !currentNames.contains(
                                         role.getName()
@@ -250,8 +291,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
                         )
                         .toList();
 
-        List<RoleRepresentation> rolesToRemove =
-                currentManagedRoles.stream()
+        List<RoleRepresentation> rolesToRemove = currentManagedRoles.stream()
                         .filter(role ->
                                 !targetNames.contains(
                                         role.getName()
@@ -283,8 +323,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
             List<RoleRepresentation> originalRoles
     ) {
         try {
-            List<RoleRepresentation> current =
-                    roleScope.listAll()
+            List<RoleRepresentation> current = roleScope.listAll()
                             .stream()
                             .filter(this::isManagedRole)
                             .toList();
@@ -320,8 +359,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
     private Account mapAccount(
             UserRepresentation representation
     ) {
-        Set<AccountRole> roles =
-                user(AccountId.of(representation.getId()))
+        Set<AccountRole> roles = user(AccountId.of(representation.getId()))
                         .roles()
                         .realmLevel()
                         .listAll()
@@ -331,8 +369,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
                         .flatMap(Optional::stream)
                         .collect(Collectors.toUnmodifiableSet());
 
-        Instant createdAt =
-                representation.getCreatedTimestamp() == null
+        Instant createdAt = representation.getCreatedTimestamp() == null
                         ? null
                         : Instant.ofEpochMilli(
                         representation
@@ -398,11 +435,7 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
             throw new IdentityProviderUnavailableException(exception.getMessage());
 
         } catch (WebApplicationException exception) {
-            if (exception.getResponse() != null
-                    && exception.getResponse().getStatus()
-                    == Response.Status.CONFLICT
-                    .getStatusCode()) {
-
+            if (exception.getResponse() != null && exception.getResponse().getStatus() == Response.Status.CONFLICT.getStatusCode()) {
                 throw new AccountAlreadyExistsException("Username or email already exists");
             }
 

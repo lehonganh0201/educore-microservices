@@ -1,10 +1,12 @@
 package com.educore.identifyservice.application.port.out;
 
+import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
 import com.educore.identifyservice.domain.model.Account;
 import com.educore.identifyservice.domain.model.AccountId;
 import com.educore.identifyservice.domain.model.EmailAddress;
 import com.educore.identifyservice.domain.model.Username;
+import org.springframework.data.domain.Page;
 
 /**
  * ----------------------------------------------------------------------------
@@ -34,4 +36,8 @@ public interface IdentityManagementPort {
     Account create(CreateIdentityAccount account);
 
     Account findById(AccountId accountId);
+
+    Page<Account> search(
+            AccountSearchCriteria criteria
+    );
 }
