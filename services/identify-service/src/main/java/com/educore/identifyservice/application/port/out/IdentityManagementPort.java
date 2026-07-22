@@ -3,11 +3,10 @@ package com.educore.identifyservice.application.port.out;
 import com.educore.identifyservice.application.port.out.model.AccountSearchCriteria;
 import com.educore.identifyservice.application.port.out.model.CreateIdentityAccount;
 import com.educore.identifyservice.application.port.out.model.UpdateIdentityAccount;
-import com.educore.identifyservice.domain.model.Account;
-import com.educore.identifyservice.domain.model.AccountId;
-import com.educore.identifyservice.domain.model.EmailAddress;
-import com.educore.identifyservice.domain.model.Username;
+import com.educore.identifyservice.domain.model.*;
 import org.springframework.data.domain.Page;
+
+import java.util.Set;
 
 /**
  * ----------------------------------------------------------------------------
@@ -47,5 +46,10 @@ public interface IdentityManagementPort {
     Account changeStatus(
             AccountId accountId,
             boolean enabled
+    );
+
+    Account replaceRoles(
+            AccountId accountId,
+            Set<AccountRole> roles
     );
 }

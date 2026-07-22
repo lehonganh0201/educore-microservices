@@ -4,6 +4,7 @@ import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
 import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
+import com.educore.identifyservice.application.command.ReplaceAccountRolesCommand;
 import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
@@ -14,6 +15,7 @@ import com.educore.identifyservice.domain.model.RawPassword;
 import com.educore.identifyservice.domain.model.Username;
 import com.educore.identifyservice.presentation.rest.request.ChangeAccountStatusRequest;
 import com.educore.identifyservice.presentation.rest.request.CreateAccountRequest;
+import com.educore.identifyservice.presentation.rest.request.ReplaceAccountRolesRequest;
 import com.educore.identifyservice.presentation.rest.request.UpdateAccountRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -131,6 +133,23 @@ public class AccountController {
                                         request.enabled()
                                 )
                         )
+                )
+        );
+    }
+
+    @PutMapping("/{accountId}/roles")
+    public ResponseEntity<ApiResponse<AccountResult>> replaceRoles(
+            @PathVariable String accountId,
+            @Valid @RequestBody ReplaceAccountRolesRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Update role for account successful",
+                        accountUseCase.replaceRoles(
+                                new ReplaceAccountRolesCommand(
+                                        AccountId.of(accountId),
+                                        request.roles()
+                                ))
                 )
         );
     }

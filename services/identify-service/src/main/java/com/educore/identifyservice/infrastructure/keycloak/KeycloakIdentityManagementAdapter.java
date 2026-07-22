@@ -300,6 +300,20 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public Account replaceRoles(
+            AccountId accountId,
+            Set<AccountRole> roles
+    ) {
+        return executeForAccount(
+                accountId,
+                () -> {
+                    replaceManagedRoles(accountId, roles);
+                    return findById(accountId);
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action
