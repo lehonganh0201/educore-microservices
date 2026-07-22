@@ -2,10 +2,12 @@ package com.educore.studentservice.application.service;
 
 import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
+import com.educore.security.util.SecurityUtils;
 import com.educore.studentservice.application.command.ChangeStudentStatusCommand;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
+import com.educore.studentservice.application.port.in.StudentSelfServiceUseCase;
 import com.educore.studentservice.application.port.out.StudentRepositoryPort;
 import com.educore.studentservice.application.port.out.model.StudentSearchCriteria;
 import com.educore.studentservice.application.query.SearchStudentsQuery;
@@ -32,7 +34,7 @@ import java.util.UUID;
  */
 
 @Service
-public class StudentApplicationService implements StudentManagementUseCase {
+public class StudentApplicationService implements StudentManagementUseCase, StudentSelfServiceUseCase {
     private final StudentRepositoryPort studentRepository;
     private final Clock clock;
 
@@ -144,5 +146,21 @@ public class StudentApplicationService implements StudentManagementUseCase {
                 .orElseThrow(() ->
                         new StudentNotFoundException("Not found student id " + studentId.value())
                 );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StudentResult getMyProfile() {
+        IdentityId identityId = IdentityId.of(SecurityUtils.getCurrentUserId().orElseThrow(() -> new StudentNotFoundException("Not found student with identity id")));
+
+        Student student = studentRepository
+                .findByIdentityId(identityId)
+                .orElseThrow(() ->
+                        new StudentNotFoundException(
+                                "identityId=" + identityId.value()
+                        )
+                );
+
+        return StudentResult.from(student);
     }
 }
