@@ -15,6 +15,7 @@
         <option value="$PROJECT_DIR$/platform/educore-web-starter/pom.xml" />
         <option value="$PROJECT_DIR$/platform/educore-data-starter/pom.xml" />
         <option value="$PROJECT_DIR$/services/identify-service/pom.xml" />
+        <option value="$PROJECT_DIR$/services/student-service/pom.xml" />
       </list>
     </option>
   </component>
