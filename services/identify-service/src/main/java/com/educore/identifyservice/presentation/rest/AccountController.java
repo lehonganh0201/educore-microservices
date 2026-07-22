@@ -2,6 +2,7 @@ package com.educore.identifyservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
+import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
 import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
@@ -11,6 +12,7 @@ import com.educore.identifyservice.domain.model.AccountId;
 import com.educore.identifyservice.domain.model.EmailAddress;
 import com.educore.identifyservice.domain.model.RawPassword;
 import com.educore.identifyservice.domain.model.Username;
+import com.educore.identifyservice.presentation.rest.request.ChangeAccountStatusRequest;
 import com.educore.identifyservice.presentation.rest.request.CreateAccountRequest;
 import com.educore.identifyservice.presentation.rest.request.UpdateAccountRequest;
 import jakarta.validation.Valid;
@@ -111,6 +113,24 @@ public class AccountController {
                                         request.firstName(),
                                         request.lastName()
                                 ))
+                )
+        );
+    }
+
+    @PatchMapping("/{accountId}/status")
+    public ResponseEntity<ApiResponse<AccountResult>> changeStatus(
+            @PathVariable String accountId,
+            @RequestBody ChangeAccountStatusRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Update account status successful",
+                        accountUseCase.changeStatus(
+                                new ChangeAccountStatusCommand(
+                                        AccountId.of(accountId),
+                                        request.enabled()
+                                )
+                        )
                 )
         );
     }

@@ -276,6 +276,30 @@ public class KeycloakIdentityManagementAdapter implements IdentityManagementPort
         );
     }
 
+    @Override
+    public Account changeStatus(
+            AccountId accountId,
+            boolean enabled
+    ) {
+        return executeForAccount(
+                accountId,
+                () -> {
+                    UserResource resource = user(accountId);
+
+                    UserRepresentation representation = resource.toRepresentation();
+
+                    representation.setEnabled(enabled);
+                    resource.update(representation);
+
+                    if (!enabled) {
+                        resource.logout();
+                    }
+
+                    return findById(accountId);
+                }
+        );
+    }
+
     private <T> T executeForAccount(
             AccountId accountId,
             Supplier<T> action

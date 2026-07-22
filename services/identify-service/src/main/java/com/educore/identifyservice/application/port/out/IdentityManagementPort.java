@@ -43,4 +43,9 @@ public interface IdentityManagementPort {
     );
 
     Account update(UpdateIdentityAccount account);
+
+    Account changeStatus(
+            AccountId accountId,
+            boolean enabled
+    );
 }

@@ -1,6 +1,7 @@
 package com.educore.identifyservice.application.port.in;
 
 import com.educore.common.dto.PageResponse;
+import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
 import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.query.SearchAccountsQuery;
@@ -25,4 +26,6 @@ public interface AccountManagementUseCase {
     PageResponse<AccountResult> search(SearchAccountsQuery query);
 
     AccountResult update(UpdateAccountCommand command);
+
+    AccountResult changeStatus(ChangeAccountStatusCommand command);
 }
