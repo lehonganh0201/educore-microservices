@@ -1,12 +1,17 @@
 package com.educore.studentservice.application.service;
 
+import com.educore.common.dto.PageResponse;
+import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
 import com.educore.studentservice.application.port.out.StudentRepositoryPort;
+import com.educore.studentservice.application.port.out.model.StudentSearchCriteria;
+import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
 import com.educore.studentservice.domain.exception.StudentAlreadyExistsException;
 import com.educore.studentservice.domain.exception.StudentNotFoundException;
 import com.educore.studentservice.domain.model.*;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +75,23 @@ public class StudentApplicationService implements StudentManagementUseCase {
     @Transactional(readOnly = true)
     public StudentResult findById(UUID studentId) {
         return StudentResult.from(getStudent(StudentId.of(studentId)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<StudentResult> search(SearchStudentsQuery query) {
+        Page<StudentResult> resultPage = studentRepository.search(
+                new StudentSearchCriteria(
+                        query.keyword(),
+                        query.status(),
+                        query.gender(),
+                        query.enrollmentYear(),
+                        query.page(),
+                        query.size()
+                )
+        ).map(StudentResult::from);
+
+        return SpringPageResponseMapper.from(resultPage);
     }
 
     private Student getStudent(StudentId studentId) {

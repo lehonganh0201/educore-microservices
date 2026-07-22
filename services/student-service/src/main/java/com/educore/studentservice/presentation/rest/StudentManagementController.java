@@ -1,19 +1,22 @@
 package com.educore.studentservice.presentation.rest;
 
 import com.educore.common.dto.ApiResponse;
+import com.educore.common.dto.PageResponse;
 import com.educore.studentservice.application.command.CreateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
+import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
+import com.educore.studentservice.domain.model.Gender;
+import com.educore.studentservice.domain.model.StudentStatus;
 import com.educore.studentservice.presentation.rest.request.CreateStudentRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * ----------------------------------------------------------------------------
@@ -57,5 +60,29 @@ public class StudentManagementController {
                                 )
                         )
                 );
+    }
+
+    @GetMapping
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LECTURER')"
+    )
+    public ResponseEntity<PageResponse<StudentResult>> search(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false) StudentStatus status,
+            @RequestParam(required = false) Gender gender,
+            @RequestParam(required = false) Integer enrollmentYear,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size
+    ) {
+        return ResponseEntity.ok(studentManagementUseCase.search(
+                new SearchStudentsQuery(
+                        keyword,
+                        status,
+                        gender,
+                        enrollmentYear,
+                        page,
+                        size
+                ))
+        );
     }
 }

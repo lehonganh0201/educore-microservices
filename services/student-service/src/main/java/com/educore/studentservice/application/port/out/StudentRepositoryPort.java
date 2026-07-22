@@ -1,9 +1,11 @@
 package com.educore.studentservice.application.port.out;
 
+import com.educore.studentservice.application.port.out.model.StudentSearchCriteria;
 import com.educore.studentservice.domain.model.IdentityId;
 import com.educore.studentservice.domain.model.Student;
 import com.educore.studentservice.domain.model.StudentCode;
 import com.educore.studentservice.domain.model.StudentId;
+import org.springframework.data.domain.Page;
 
 import java.util.Optional;
 
@@ -29,4 +31,6 @@ public interface StudentRepositoryPort {
     );
 
     Student save(Student student);
+
+    Page<Student> search(StudentSearchCriteria studentSearchCriteria);
 }

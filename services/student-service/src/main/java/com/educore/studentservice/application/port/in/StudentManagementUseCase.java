@@ -1,6 +1,8 @@
 package com.educore.studentservice.application.port.in;
 
+import com.educore.common.dto.PageResponse;
 import com.educore.studentservice.application.command.CreateStudentCommand;
+import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
 
 import java.util.UUID;
@@ -19,4 +21,6 @@ public interface StudentManagementUseCase {
     StudentResult create(CreateStudentCommand command);
 
     StudentResult findById(UUID studentId);
+
+    PageResponse<StudentResult> search(SearchStudentsQuery query);
 }
