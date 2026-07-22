@@ -3,6 +3,7 @@ package com.educore.studentservice.application.service;
 import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.studentservice.application.command.CreateStudentCommand;
+import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
 import com.educore.studentservice.application.port.out.StudentRepositoryPort;
 import com.educore.studentservice.application.port.out.model.StudentSearchCriteria;
@@ -92,6 +93,30 @@ public class StudentApplicationService implements StudentManagementUseCase {
         ).map(StudentResult::from);
 
         return SpringPageResponseMapper.from(resultPage);
+    }
+
+    @Override
+    public StudentResult update(
+            UpdateStudentCommand command
+    ) {
+        Student current = getStudent(
+                StudentId.of(command.studentId())
+        );
+
+        Student updated = current.updateAdministrativeProfile(
+                        FullName.of(command.fullName()),
+                        command.dateOfBirth(),
+                        command.gender(),
+                        command.phone(),
+                        command.address(),
+                        command.enrollmentYear(),
+                        LocalDate.now(clock),
+                        clock.instant()
+                );
+
+        return StudentResult.from(
+                studentRepository.save(updated)
+        );
     }
 
     private Student getStudent(StudentId studentId) {

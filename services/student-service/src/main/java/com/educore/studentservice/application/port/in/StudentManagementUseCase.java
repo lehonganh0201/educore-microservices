@@ -2,6 +2,7 @@ package com.educore.studentservice.application.port.in;
 
 import com.educore.common.dto.PageResponse;
 import com.educore.studentservice.application.command.CreateStudentCommand;
+import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
 
@@ -23,4 +24,6 @@ public interface StudentManagementUseCase {
     StudentResult findById(UUID studentId);
 
     PageResponse<StudentResult> search(SearchStudentsQuery query);
+
+    StudentResult update(UpdateStudentCommand command);
 }

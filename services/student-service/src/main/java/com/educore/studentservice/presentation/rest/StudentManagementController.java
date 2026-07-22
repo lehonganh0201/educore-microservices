@@ -3,12 +3,14 @@ package com.educore.studentservice.presentation.rest;
 import com.educore.common.dto.ApiResponse;
 import com.educore.common.dto.PageResponse;
 import com.educore.studentservice.application.command.CreateStudentCommand;
+import com.educore.studentservice.application.command.UpdateStudentCommand;
 import com.educore.studentservice.application.port.in.StudentManagementUseCase;
 import com.educore.studentservice.application.query.SearchStudentsQuery;
 import com.educore.studentservice.application.result.StudentResult;
 import com.educore.studentservice.domain.model.Gender;
 import com.educore.studentservice.domain.model.StudentStatus;
 import com.educore.studentservice.presentation.rest.request.CreateStudentRequest;
+import com.educore.studentservice.presentation.rest.request.UpdateStudentRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -17,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 /**
  * ----------------------------------------------------------------------------
@@ -83,6 +87,44 @@ public class StudentManagementController {
                         page,
                         size
                 ))
+        );
+    }
+
+    @GetMapping("/{studentId}")
+    @PreAuthorize(
+            "hasAnyRole('ADMIN', 'LECTURER')"
+    )
+    public ResponseEntity<ApiResponse<StudentResult>> findById(@PathVariable UUID studentId) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Get student by id successful",
+                        studentManagementUseCase
+                                .findById(studentId)
+                )
+        );
+    }
+
+    @PutMapping("/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<StudentResult>> update(
+            @PathVariable UUID studentId,
+            @Valid @RequestBody UpdateStudentRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Update student successful",
+                        studentManagementUseCase.update(
+                                new UpdateStudentCommand(
+                                        studentId,
+                                        request.fullName(),
+                                        request.dateOfBirth(),
+                                        request.gender(),
+                                        request.phone(),
+                                        request.address(),
+                                        request.enrollmentYear()
+                                )
+                        )
+                )
         );
     }
 }
