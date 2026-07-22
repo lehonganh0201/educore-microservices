@@ -4,6 +4,7 @@ import com.educore.common.dto.PageResponse;
 import com.educore.data.pagination.SpringPageResponseMapper;
 import com.educore.identifyservice.application.command.ChangeAccountStatusCommand;
 import com.educore.identifyservice.application.command.CreateAccountCommand;
+import com.educore.identifyservice.application.command.ReplaceAccountRolesCommand;
 import com.educore.identifyservice.application.command.UpdateAccountCommand;
 import com.educore.identifyservice.application.port.in.AccountManagementUseCase;
 import com.educore.identifyservice.application.port.out.IdentityManagementPort;
@@ -125,6 +126,18 @@ public class AccountManagementService implements AccountManagementUseCase {
         Account account = identityManagementPort.changeStatus(
                         command.accountId(),
                         command.enabled()
+                );
+
+        return AccountResult.from(account);
+    }
+
+    @Override
+    public AccountResult replaceRoles(
+            ReplaceAccountRolesCommand command
+    ) {
+        Account account = identityManagementPort.replaceRoles(
+                        command.accountId(),
+                        command.roles()
                 );
 
         return AccountResult.from(account);
