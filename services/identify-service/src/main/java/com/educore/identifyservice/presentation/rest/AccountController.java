@@ -104,7 +104,6 @@ public class AccountController {
                         accountUseCase.update(
                                 new UpdateAccountCommand(
                                         AccountId.of(accountId),
-                                        Username.of(request.username()),
                                         EmailAddress.of(request.email()),
                                         request.firstName(),
                                         request.lastName()
