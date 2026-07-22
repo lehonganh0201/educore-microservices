@@ -13,6 +13,7 @@
         <module name="web" />
         <module name="api-gateway" />
         <module name="logging" />
+        <module name="student-service" />
         <module name="discovery-service" />
         <module name="common-core" />
       </profile>
@@ -28,6 +29,7 @@
       <module name="identify-service" options="-parameters" />
       <module name="logging" options="-parameters" />
       <module name="security" options="-parameters" />
+      <module name="student-service" options="-parameters" />
       <module name="web" options="-parameters" />
     </option>
   </component>
