@@ -1,0 +1,407 @@
+name: educore
+
+services:
+  config-server:
+    container_name: educore-config-server
+
+    build:
+      context: ./infrastructure/config-server
+      dockerfile: Dockerfile
+
+    ports:
+      - "8888:8888"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SERVER_PORT: 8888
+
+      # Đọc file config từ thư mục được mount
+      CONFIG_SEARCH_LOCATIONS: file:/configurations
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    volumes:
+      - ./infrastructure/config-server/src/main/resources/configurations:/configurations:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8888/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+  discovery-service:
+    build:
+      context: ./infrastructure/discovery-service
+      dockerfile: Dockerfile
+
+    container_name: educore-discovery-service
+
+    ports:
+      - "8761:8761"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      SERVER_PORT: 8761
+
+      # Ghi đè localhost bằng service name trong Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_HOSTNAME: discovery-service
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8761/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+  api-gateway:
+    container_name: educore-api-gateway
+
+    build:
+      context: ./infrastructure/api-gateway
+      dockerfile: Dockerfile
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8080
+
+      # Container gọi Config Server bằng service name
+      CONFIG_SERVER_URL: http://config-server:8888
+
+      # Container gọi Eureka bằng service name
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+
+      # Trong Docker có thể đăng ký bằng container IP
+      EUREKA_PREFER_IP_ADDRESS: "true"
+
+      HEALTH_SHOW_DETAILS: never
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+      discovery-service:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+  identify-service:
+    container_name: educore-identify-service
+
+    image: educore/identify-service:0.0.1
+
+    build:
+      # Build từ root vì identify-service phụ thuộc các module common
+      context: .
+      dockerfile: ./services/identify-service/Dockerfile
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8081
+
+      # Config Server nội bộ Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+
+      # Eureka nội bộ Docker
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      EUREKA_PREFER_IP_ADDRESS: "true"
+
+      # URL issuer phải khớp claim iss của token
+      KEYCLOAK_ISSUER_URI: http://localhost:9090/realms/educore
+
+      # URL nội bộ để lấy public key
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/educore/protocol/openid-connect/certs
+
+      # URL nội bộ để gọi Token API và Admin REST API
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+
+      KEYCLOAK_REALM: educore
+      KEYCLOAK_CLIENT_ID: identify-service
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-identify-service}
+      KEYCLOAK_ADMIN_CLIENT_ID: identify-service-admin
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:-identify-service-admin}
+
+      HEALTH_SHOW_DETAILS: never
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+      discovery-service:
+        condition: service_healthy
+
+      keycloak:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+  student-service:
+    container_name: educore-student-service
+
+    image: educore/student-service:0.0.1
+
+    build:
+      # Build từ root vì identify-service phụ thuộc các module common
+      context: .
+      dockerfile: ./services/student-service/Dockerfile
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8082
+
+      # Config Server nội bộ Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+
+      # Eureka nội bộ Docker
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      EUREKA_PREFER_IP_ADDRESS: "true"
+
+      DB_URL: jdbc:postgresql://postgres:5432/student_db
+      DB_USERNAME: lehonganh
+      DB_PASSWORD: lehonganh
+
+      # URL issuer phải khớp claim iss của token
+      KEYCLOAK_ISSUER_URI: http://localhost:9090/realms/educore
+      HEALTH_SHOW_DETAILS: never
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+      discovery-service:
+        condition: service_healthy
+
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8082/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: educore-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: lehonganh
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lehonganh}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./script/postgres/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U lehonganh -d postgres"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - educore-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.0
+    container_name: educore-keycloak
+
+    restart: unless-stopped
+
+    command:
+      - start-dev
+      - --import-realm
+
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: lehonganh
+
+      # Phải cùng password với POSTGRES_PASSWORD
+      KC_DB_PASSWORD: ${DB_PASSWORD:-lehonganh}
+
+      KC_HTTP_ENABLED: "true"
+
+      # URL public dùng cho trình duyệt và claim "iss"
+      KC_HOSTNAME: http://localhost:9090
+
+      # Cho phép service trong Docker truy cập qua keycloak:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+
+    ports:
+      - "9090:8080"
+
+    volumes:
+      - ./script/keycloak/import:/opt/keycloak/data/import:ro
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "{ printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep -q 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+    networks:
+      - educore-network
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: educore-prometheus
+
+    volumes:
+      - ./script/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+    networks:
+      - educore-network
+
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: educore-node-exporter
+    # Mount Read-Only các thư mục hệ thống ảo của VPS host vào container
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - educore-network
+    # Không cần mở port 9100 ra ngoài host vì chỉ phục vụ Prometheus quét nội bộ
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: educore-grafana
+    ports:
+      - "3000:3000" # Map cổng 3000 ra ngoài để truy cập giao diện
+    volumes:
+      # Sử dụng volume để lưu trữ cấu hình dashboards, users của Grafana
+      - grafana-data:/var/lib/grafana
+    networks:
+      - educore-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=lehonganh # Đặt mật khẩu admin mặc định
+    restart: unless-stopped
+
+networks:
+  educore-network:
+    name: educore-network
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus-data:
+  grafana-data:

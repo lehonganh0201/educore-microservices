@@ -1,0 +1,44 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:9090/realms/educore}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:9090/realms/educore/protocol/openid-connect/certs}
+eureka:
+  instance:
+    prefer-ip-address: ${EUREKA_PREFER_IP_ADDRESS:false}
+
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      show-details: ${HEALTH_SHOW_DETAILS:never}
+
+  metrics:
+    tags:
+      # Tự động gắn nhãn "application" chứa tên ứng dụng vào mọi metrics được tạo ra
+      application: ${spring.application.name}
+
+edu:
+  keycloak:
+    base-url: ${KEYCLOAK_BASE_URL:http://localhost:9090}
+    realm: ${KEYCLOAK_REALM:educore}
+    client-id: ${KEYCLOAK_CLIENT_ID:identify-service}
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:identify-service}
+    admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:identify-service-admin}
+    admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:identify-service-admin}

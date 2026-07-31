@@ -1,0 +1,229 @@
+{
+  "info": {
+    "_postman_id": "96855f2a-8136-4985-9d40-7512cd0bc4fa",
+    "name": "Educore Microservice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30541782"
+  },
+  "item": [
+    {
+      "name": "Identify",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// === POSTMAN TESTS SCRIPT - Extract Tokens ===\r",
+                  "\r",
+                  "// Parse response JSON\r",
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "// Kiểm tra response thành công\r",
+                  "if (response.success === true && response.data && response.data.accessToken) {\r",
+                  "    \r",
+                  "    // Lấy tokens\r",
+                  "    const accessToken = response.data.accessToken;\r",
+                  "    const refreshToken = response.data.refreshToken;\r",
+                  "    \r",
+                  "    // Gán vào Collection Variables (khuyến nghị)\r",
+                  "    pm.collectionVariables.set(\"accessToken\", accessToken);\r",
+                  "    pm.collectionVariables.set(\"refreshToken\", refreshToken);\r",
+                  "    \r",
+                  "    // Optional: Gán thêm vào Environment Variables\r",
+                  "    pm.environment.set(\"accessToken\", accessToken);\r",
+                  "    pm.environment.set(\"refreshToken\", refreshToken);\r",
+                  "    \r",
+                  "    // In ra console để debug\r",
+                  "    console.log(\"✅ Tokens đã được cập nhật:\");\r",
+                  "    console.log(\"Access Token:\", accessToken.substring(0, 50) + \"...\");\r",
+                  "    console.log(\"Refresh Token:\", refreshToken.substring(0, 50) + \"...\");\r",
+                  "    \r",
+                  "    // Thông báo\r",
+                  "    pm.test(\"Login successful - Tokens saved\", function () {\r",
+                  "        pm.expect(response.success).to.be.true;\r",
+                  "        pm.expect(accessToken).to.be.not.empty;\r",
+                  "    });\r",
+                  "\r",
+                  "} else {\r",
+                  "    console.log(\"❌ Login thất bại hoặc không có token\");\r",
+                  "    pm.test(\"Login failed\", function () {\r",
+                  "        pm.expect(response.success).to.be.true;\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"usernameOrEmail\": \"admin\",\r\n    \"password\": \"admin123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// === POSTMAN TESTS SCRIPT - Extract Tokens ===\r",
+                  "\r",
+                  "// Parse response JSON\r",
+                  "const response = pm.response.json();\r",
+                  "\r",
+                  "// Kiểm tra response thành công\r",
+                  "if (response.success === true && response.data && response.data.accessToken) {\r",
+                  "    \r",
+                  "    // Lấy tokens\r",
+                  "    const accessToken = response.data.accessToken;\r",
+                  "    const refreshToken = response.data.refreshToken;\r",
+                  "    \r",
+                  "    // Gán vào Collection Variables (khuyến nghị)\r",
+                  "    pm.collectionVariables.set(\"accessToken\", accessToken);\r",
+                  "    pm.collectionVariables.set(\"refreshToken\", refreshToken);\r",
+                  "    \r",
+                  "    // Optional: Gán thêm vào Environment Variables\r",
+                  "    pm.environment.set(\"accessToken\", accessToken);\r",
+                  "    pm.environment.set(\"refreshToken\", refreshToken);\r",
+                  "    \r",
+                  "    // In ra console để debug\r",
+                  "    console.log(\"✅ Tokens đã được cập nhật:\");\r",
+                  "    console.log(\"Access Token:\", accessToken.substring(0, 50) + \"...\");\r",
+                  "    console.log(\"Refresh Token:\", refreshToken.substring(0, 50) + \"...\");\r",
+                  "    \r",
+                  "    // Thông báo\r",
+                  "    pm.test(\"Login successful - Tokens saved\", function () {\r",
+                  "        pm.expect(response.success).to.be.true;\r",
+                  "        pm.expect(accessToken).to.be.not.empty;\r",
+                  "    });\r",
+                  "\r",
+                  "} else {\r",
+                  "    console.log(\"❌ Login thất bại hoặc không có token\");\r",
+                  "    pm.test(\"Login failed\", function () {\r",
+                  "        pm.expect(response.success).to.be.true;\r",
+                  "    });\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    }
+  ]
+}
