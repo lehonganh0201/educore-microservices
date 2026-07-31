@@ -49,7 +49,8 @@ public class SecurityConfiguration {
                                         "/api/v1/auth/refresh",
                                         "/api/v1/auth/logout",
                                         "/actuator/health",
-                                        "/actuator/info"
+                                        "/actuator/info",
+                                        "/actuator/prometheus"
                                 )
                                 .permitAll()
                                 .requestMatchers("/api/v1/accounts/**").hasRole("ADMIN")
