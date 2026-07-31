@@ -23,11 +23,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
 
   endpoint:
     health:
       show-details: ${HEALTH_SHOW_DETAILS:never}
+
+  metrics:
+    tags:
+      # Tự động gắn nhãn "application" chứa tên ứng dụng vào mọi metrics được tạo ra
+      application: ${spring.application.name}
 
 edu:
   keycloak:

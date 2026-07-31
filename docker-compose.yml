@@ -203,6 +203,68 @@ services:
     networks:
       - educore-network
 
+  student-service:
+    container_name: educore-student-service
+
+    image: educore/student-service:0.0.1
+
+    build:
+      # Build từ root vì identify-service phụ thuộc các module common
+      context: .
+      dockerfile: ./services/student-service/Dockerfile
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8082
+
+      # Config Server nội bộ Docker
+      CONFIG_SERVER_URL: http://config-server:8888
+
+      # Eureka nội bộ Docker
+      EUREKA_SERVER_URL: http://discovery-service:8761/eureka/
+      EUREKA_PREFER_IP_ADDRESS: "true"
+
+      DB_URL: jdbc:postgresql://postgres:5432/student_db
+      DB_USERNAME: lehonganh
+      DB_PASSWORD: lehonganh
+
+      # URL issuer phải khớp claim iss của token
+      KEYCLOAK_ISSUER_URI: http://localhost:9090/realms/educore
+      HEALTH_SHOW_DETAILS: never
+
+      JAVA_OPTS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+      discovery-service:
+        condition: service_healthy
+
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:8082/actuator/health | grep -q '\"status\":\"UP\"'"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+    restart: unless-stopped
+
+    networks:
+      - educore-network
+
   postgres:
     image: postgres:17-alpine
     container_name: educore-postgres
@@ -289,6 +351,51 @@ services:
     networks:
       - educore-network
 
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: educore-prometheus
+
+    volumes:
+      - ./script/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+    networks:
+      - educore-network
+
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: educore-node-exporter
+    # Mount Read-Only các thư mục hệ thống ảo của VPS host vào container
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - educore-network
+    # Không cần mở port 9100 ra ngoài host vì chỉ phục vụ Prometheus quét nội bộ
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: educore-grafana
+    ports:
+      - "3000:3000" # Map cổng 3000 ra ngoài để truy cập giao diện
+    volumes:
+      # Sử dụng volume để lưu trữ cấu hình dashboards, users của Grafana
+      - grafana-data:/var/lib/grafana
+    networks:
+      - educore-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=lehonganh # Đặt mật khẩu admin mặc định
+    restart: unless-stopped
+
 networks:
   educore-network:
     name: educore-network
@@ -296,3 +403,5 @@ networks:
 
 volumes:
   postgres_data:
+  prometheus-data:
+  grafana-data:

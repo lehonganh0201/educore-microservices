@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s      # Quét chỉ số mỗi 15 giây một lần
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'educore-backend'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      # Gọi trực tiếp qua DNS nội bộ của Docker
+      - targets:
+          - 'identify-service:8081'
+          - 'student-service:8082'
+          - 'config-server:8888'
+          - 'discovery-service:8761'
+          - 'api-gateway:8080'
+
+  - job_name: 'vps-hardware'
+    metrics_path: '/metrics'  # Endpoint mặc định của Node Exporter
+    static_configs:
+      - targets: [ 'node-exporter:9100' ]
